@@ -1,0 +1,125 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.security.SecureRandom;
+
+public class PasswordGenerator extends JFrame {
+    private JTextField lengthField;
+    private JCheckBox upperCaseCheckBox, lowerCaseCheckBox, digitsCheckBox, specialCharsCheckBox;
+    private JButton generateButton;
+    private JTextArea passwordArea;
+
+    private static final String UPPERCASE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private static final String LOWERCASE = "abcdefghijklmnopqrstuvwxyz";
+    private static final String DIGITS = "0123456789";
+    private static final String SPECIAL_CHARS = "!@#$%^&*()-_=+<>?/";
+
+    public PasswordGenerator() {
+        setTitle("Random PasswordGenerator");
+        setSize(500, 350);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new GridBagLayout());
+        getContentPane().setBackground(new Color(50, 50, 50));
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+
+        JLabel titleLabel = new JLabel("Random Password Generator", JLabel.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        titleLabel.setForeground(Color.WHITE);
+        add(titleLabel, gbc);
+
+        gbc.gridy++;
+        gbc.gridwidth = 1;
+        JLabel lengthLabel = new JLabel("Password Length:");
+        lengthLabel.setForeground(Color.WHITE);
+        add(lengthLabel, gbc);
+
+        gbc.gridx = 1;
+        lengthField = new JTextField(5);
+        add(lengthField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy++;
+        upperCaseCheckBox = new JCheckBox("Uppercase Letters");
+        lowerCaseCheckBox = new JCheckBox("Lowercase Letters");
+        digitsCheckBox = new JCheckBox("Digits");
+        specialCharsCheckBox = new JCheckBox("Special Characters");
+
+        JCheckBox[] checkBoxes = {upperCaseCheckBox, lowerCaseCheckBox, digitsCheckBox, specialCharsCheckBox};
+        for (JCheckBox checkBox : checkBoxes) {
+            gbc.gridx = 0;
+            gbc.gridwidth = 2;
+            checkBox.setForeground(Color.WHITE);
+            checkBox.setBackground(new Color(50, 50, 50));
+            add(checkBox, gbc);
+            gbc.gridy++;
+        }
+
+        gbc.gridx = 0;
+        gbc.gridwidth = 2;
+        generateButton = new JButton("Generate Password");
+        generateButton.setFont(new Font("Arial", Font.BOLD, 14));
+        generateButton.setBackground(Color.GREEN);
+        generateButton.setForeground(Color.BLACK);
+        add(generateButton, gbc);
+
+        gbc.gridy++;
+        passwordArea = new JTextArea(2, 30);
+        passwordArea.setEditable(false);
+        passwordArea.setFont(new Font("Monospaced", Font.BOLD, 14));
+        passwordArea.setForeground(Color.BLUE);
+        add(new JScrollPane(passwordArea), gbc);
+
+        generateButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                generatePassword();
+            }
+        });
+    }
+
+    private void generatePassword() {
+        int length;
+        try {
+            length = Integer.parseInt(lengthField.getText());
+            if (length <= 0) {
+                JOptionPane.showMessageDialog(this, "Please enter a valid length.", "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Invalid number format.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        String charPool = "";
+        if (upperCaseCheckBox.isSelected()) charPool += UPPERCASE;
+        if (lowerCaseCheckBox.isSelected()) charPool += LOWERCASE;
+        if (digitsCheckBox.isSelected()) charPool += DIGITS;
+        if (specialCharsCheckBox.isSelected()) charPool += SPECIAL_CHARS;
+
+        if (charPool.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Select at least one character set.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        SecureRandom random = new SecureRandom();
+        StringBuilder password = new StringBuilder();
+
+        for (int i = 0; i < length; i++) {
+            password.append(charPool.charAt(random.nextInt(charPool.length())));
+        }
+
+        passwordArea.setText(password.toString());
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            new PasswordGenerator().setVisible(true);
+        });
+    }
+}
